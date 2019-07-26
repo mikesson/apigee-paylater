@@ -1,0 +1,23 @@
+{
+    "mockDirectory": "./mock",
+    "quiet": false,
+    "port": "8080",
+    "latency": 50,
+    "logRequestHeaders": false,
+    "webServices": {
+        "products": {
+            "latency": 15,
+            "verbs": ["get"],
+            "responses": {
+                "get": {"httpStatus": 200, "mockFile": "products.json"}
+            }
+        },
+        "banks": {
+            "latency": 25,
+            "verbs": ["get"],
+            "responses": {
+                "get": {"httpStatus": 200, "mockFile": "banks.json"}
+            }
+        }
+    }
+}

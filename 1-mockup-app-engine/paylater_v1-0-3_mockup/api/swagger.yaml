@@ -1,0 +1,1622 @@
+---
+swagger: "2.0"
+info:
+  description: "Move your app forward with PayLater API."
+  version: "1.0.3"
+  title: "PayLater API"
+  license:
+    name: "API Open License"
+    url: "https://www.swift.com/file/55996/download?token=XGSPaT2w"
+host: "api.sandbox.consulting"
+basePath: "/v1"
+schemes:
+- "https"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /paylater/{consumer_id}/consumer/consent:
+    post:
+      tags:
+      - "Consumer Consent"
+      summary: "Consumer Consent"
+      description: "Request from the TPP/Merchant to obtain consent from the Bank/ASPSP\
+        \ for a Consumer."
+      operationId: "paylaterConsumer_idConsumerConsentPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Consumer Consent Request"
+        required: true
+        schema:
+          $ref: "#/definitions/ConsentRequest"
+      responses:
+        200:
+          description: "Consumer Consent Response"
+          schema:
+            $ref: "#/definitions/ConsentResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "consent"
+      x-swagger-router-controller: "ConsumerConsent"
+  /paylater/{consumer_id}/consumer/consent/status:
+    post:
+      tags:
+      - "Consumer Consent Status"
+      summary: "Consumer Consent Status"
+      description: "The TPP/Merchant requests the status of the consent request that\
+        \ was sent after the consumer has been authenticated by the bank/ASPSP."
+      operationId: "paylaterConsumer_idConsumerConsentStatusPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Consumer Consent Status Request"
+        required: true
+        schema:
+          $ref: "#/definitions/ConsentStatusRequest"
+      responses:
+        200:
+          description: "Consumer Consent Status Response"
+          schema:
+            $ref: "#/definitions/ConsentStatusResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "consent"
+      x-swagger-router-controller: "ConsumerConsentStatus"
+  /paylater/{consumer_id}/loan/offer:
+    post:
+      tags:
+      - "Loan Offer"
+      summary: "Loan Offer"
+      description: "Requests the Bank/ASPSP for a number of Loan Offers based on the\
+        \ criteria in the request."
+      operationId: "paylaterConsumer_idLoanOfferPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Loan Offer Request"
+        required: true
+        schema:
+          $ref: "#/definitions/LoanOfferRequest"
+      responses:
+        200:
+          description: "Loan Offer Response"
+          schema:
+            $ref: "#/definitions/LoanOfferResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "standard"
+        - "promo"
+      x-swagger-router-controller: "LoanOffer"
+  /paylater/{consumer_id}/loan/payment:
+    post:
+      tags:
+      - "Loan Payment"
+      summary: "Loan Payment"
+      description: "The user requests the Bank/ASPSP for a Loan, based on one of the\
+        \ Loan Offers supplied earlier."
+      operationId: "paylaterConsumer_idLoanPaymentPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Loan Payment Request"
+        required: true
+        schema:
+          $ref: "#/definitions/LoanPaymentRequest"
+      responses:
+        200:
+          description: "Loan Payment Response"
+          schema:
+            $ref: "#/definitions/LoanPaymentResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "standard"
+        - "promo"
+        - "payment"
+      x-swagger-router-controller: "LoanPayment"
+  /paylater/{consumer_id}/loan/payment/status:
+    post:
+      tags:
+      - "Loan Payment Status"
+      summary: "Loan Payment Status"
+      description: "The user requests the bank/ASPSP if the Loan Request has been\
+        \ accepted."
+      operationId: "paylaterConsumer_idLoanPaymentStatusPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Loan Payment Status Request"
+        required: true
+        schema:
+          $ref: "#/definitions/LoanPaymentStatusRequest"
+      responses:
+        200:
+          description: "Loan Payment Status Response"
+          schema:
+            $ref: "#/definitions/LoanPaymentStatusResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "standard"
+        - "promo"
+        - "payment"
+      x-swagger-router-controller: "LoanPaymentStatus"
+  /paylater/{consumer_id}/loan/payment/void:
+    post:
+      tags:
+      - "Loan Payment Void"
+      summary: "Loan Payment Void"
+      description: "The user requests the cancellation of a previously established\
+        \ loan payment."
+      operationId: "paylaterConsumer_idLoanPaymentVoidPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Loan Payment Void Request"
+        required: true
+        schema:
+          $ref: "#/definitions/LoanPaymentVoidRequest"
+      responses:
+        200:
+          description: "Loan Payment Void Response"
+          schema:
+            $ref: "#/definitions/LoanPaymentVoidResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "standard"
+        - "promo"
+        - "payment"
+      x-swagger-router-controller: "LoanPaymentVoid"
+  /paylater/{consumer_id}/loan/payment/refund:
+    post:
+      tags:
+      - "Loan Payment Refund"
+      summary: "Loan Payment Refund"
+      description: "Requests the Bank/ASPSP for the details of the amount and account\
+        \ to execute a simple refund of a previously defined LoanPayment."
+      operationId: "paylaterConsumer_idLoanPaymentRefundPOST"
+      parameters:
+      - name: "consumer_id"
+        in: "path"
+        description: "Unique and unambiguous identification of a consumer."
+        required: true
+        type: "string"
+        pattern: "^[a-zA-Z0-9]{1,35}$"
+      - in: "body"
+        name: "request_body"
+        description: "Loan Payment Refund Request"
+        required: true
+        schema:
+          $ref: "#/definitions/LoanPaymentRefundRequest"
+      responses:
+        200:
+          description: "Loan Payment Refund Response"
+          schema:
+            $ref: "#/definitions/LoanPaymentRefundResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        401:
+          description: "Unauthorized WWW-Authenticate: Bearer realm='SwAP'"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        404:
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        429:
+          description: "Too many requests"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        502:
+          description: "Bad Gateway"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        503:
+          description: "Service Unavailable"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        504:
+          description: "Gateway Timeout"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorCode"
+      security:
+      - ApiKeyAuth: []
+        OAuth2:
+        - "standard"
+        - "promo"
+        - "payment"
+      x-swagger-router-controller: "LoanPaymentRefund"
+securityDefinitions:
+  ApiKeyAuth:
+    type: "apiKey"
+    name: "X-API-Key"
+    in: "header"
+  OAuth2:
+    type: "oauth2"
+    authorizationUrl: "bank/paylater/oauth/authorize"
+    tokenUrl: "https://swift-api-domain/oauth/token"
+    flow: "accessCode"
+    scopes:
+      consent: "Checks whether a person is eligible for a credit"
+      standard: "Grants standard credit line"
+      promo: "Grants promo credit line"
+      payment: "Grants payment permission"
+definitions:
+  ErrorCode:
+    type: "object"
+    required:
+    - "status"
+    properties:
+      status:
+        $ref: "#/definitions/ErrorCode_status"
+  ConsentStatusRequest:
+    type: "object"
+    required:
+    - "consumer_consent_resource_identification"
+    properties:
+      consumer_consent_resource_identification:
+        $ref: "#/definitions/Max35Text"
+    example:
+      consumer_consent_resource_identification: "CC0001"
+  ConsentStatusResponse:
+    type: "object"
+    required:
+    - "status_code"
+    properties:
+      status_code:
+        $ref: "#/definitions/Status5Code"
+    example:
+      status_code: "PACK"
+  Max35Text:
+    type: "string"
+    minLength: 1
+    maxLength: 35
+  Status5Code:
+    type: "string"
+    description: "Specifies the status of an instruction."
+    enum:
+    - "REJT"
+    - "PACK"
+    - "PDNG"
+  ConsentRequest:
+    type: "object"
+    required:
+    - "address"
+    - "consent_attributes"
+    - "name"
+    properties:
+      name:
+        $ref: "#/definitions/Max140Text"
+      address:
+        $ref: "#/definitions/PostalAddress24"
+      status:
+        $ref: "#/definitions/Max35Text"
+      consent_attributes:
+        $ref: "#/definitions/ConsentUsage1"
+      valid_until:
+        $ref: "#/definitions/DateAndDateTime2Choice"
+    example:
+      name: "John Foe"
+      address:
+        post_code: "NW8 9AY"
+        town_name: "LONDON"
+        country: "UK"
+        address_line:
+        - "3 Abbey Road"
+      status: "a"
+      consent_attributes:
+        allowed_merchants:
+        - name: "TV Reseller UK"
+          postal_address:
+            address_type:
+              code: "ADDR"
+            country: "UK"
+            address_line:
+            - "10 TV Reseller Street"
+          identification:
+            organisation_identification:
+              other:
+              - identification: "O2RNE8IBXP4R0TD8PU41"
+                scheme_name:
+                  code: "LEI"
+        loan_purpose: "TV1"
+      valid_until:
+        date: "2018-12-31"
+  Max140Text:
+    type: "string"
+    minLength: 1
+    maxLength: 140
+    description: "Specifies a character string with a maximum length of 140 characters."
+  PostalAddress24:
+    type: "object"
+    properties:
+      address_type:
+        $ref: "#/definitions/AddressType3Choice"
+      department:
+        $ref: "#/definitions/Max70Text"
+      sub_department:
+        $ref: "#/definitions/Max70Text"
+      street_name:
+        $ref: "#/definitions/Max70Text"
+      building_number:
+        $ref: "#/definitions/Max16Text"
+      building_name:
+        $ref: "#/definitions/Max35Text"
+      floor:
+        $ref: "#/definitions/Max70Text"
+      post_box:
+        $ref: "#/definitions/Max16Text"
+      room:
+        $ref: "#/definitions/Max70Text"
+      post_code:
+        $ref: "#/definitions/Max16Text"
+      town_name:
+        $ref: "#/definitions/Max35Text"
+      town_location_name:
+        $ref: "#/definitions/Max35Text"
+      district_name:
+        $ref: "#/definitions/Max35Text"
+      country_sub_division:
+        $ref: "#/definitions/Max35Text"
+      country:
+        $ref: "#/definitions/CountryCode"
+      address_line:
+        type: "array"
+        description: "Information that locates and identifies a specific address,\
+          \ as defined by postal services, presented in free format text."
+        items:
+          $ref: "#/definitions/Max70Text"
+        maxItems: 7
+    description: "Information that locates and identifies a specific address, as defined\
+      \ by postal services."
+  AddressType3Choice:
+    type: "object"
+    properties:
+      code:
+        $ref: "#/definitions/AddressType2Code"
+      proprietary:
+        $ref: "#/definitions/GenericIdentification30"
+    description: "Choice of formats for the type of address."
+  AddressType2Code:
+    type: "string"
+    description: "Specifies the type of address."
+    enum:
+    - "ADDR"
+    - "PBOX"
+    - "HOME"
+    - "BIZZ"
+    - "MLTO"
+    - "DLVY"
+  GenericIdentification30:
+    type: "object"
+    required:
+    - "identification"
+    - "issuer"
+    properties:
+      identification:
+        $ref: "#/definitions/Exact4AlphaNumericText"
+      issuer:
+        $ref: "#/definitions/Max35Text"
+      scheme_name:
+        $ref: "#/definitions/Max35Text"
+    description: "Information related to an identification, for example, party identification\
+      \ or account identification."
+  Exact4AlphaNumericText:
+    type: "string"
+    pattern: "^[a-zA-Z0-9]{4}$"
+    description: "Specifies an alphanumeric string with a length of 4 characters."
+  Max70Text:
+    type: "string"
+    minLength: 1
+    maxLength: 70
+    description: "Specifies a character string with a maximum length of 70characters."
+  Max16Text:
+    type: "string"
+    minLength: 1
+    maxLength: 16
+    description: "Specifies a character string with a maximum length of 16 characters."
+  CountryCode:
+    type: "string"
+    pattern: "^[A-Z]{2,2}$"
+    description: "Code to identify a country, a dependency, or another area of particular\
+      \ geopolitical interest, on the basis of country names obtained from the United\
+      \ Nations (ISO 3166, Alpha-2 code)."
+  ConsentUsage1:
+    type: "object"
+    required:
+    - "loan_purpose"
+    properties:
+      allowed_merchants:
+        type: "array"
+        description: "Specifies the list of merchants/TPP for which the consent has\
+          \ been granted."
+        items:
+          $ref: "#/definitions/PartyIdentification135"
+      loan_purpose:
+        $ref: "#/definitions/Max500Text"
+      maximum_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+    description: "Specifies the usage and purpose of the consent"
+  PartyIdentification135:
+    type: "object"
+    properties:
+      name:
+        $ref: "#/definitions/Max140Text"
+      postal_address:
+        $ref: "#/definitions/PostalAddress24"
+      identification:
+        $ref: "#/definitions/Party38Choice"
+      country_of_residence:
+        $ref: "#/definitions/CountryCode"
+      contact_details:
+        $ref: "#/definitions/Contact4"
+    description: "Specifies the identification of a person or an organisation."
+  Party38Choice:
+    type: "object"
+    properties:
+      organisation_identification:
+        $ref: "#/definitions/OrganisationIdentification29"
+      private_identification:
+        $ref: "#/definitions/PersonIdentification13"
+    description: "Nature or use of the account."
+  OrganisationIdentification29:
+    type: "object"
+    properties:
+      any_bic:
+        $ref: "#/definitions/AnyBICDec2014Identifier"
+      lei:
+        $ref: "#/definitions/LEIIdentifier"
+      other:
+        type: "array"
+        description: "Unique identification of an organisation, as assigned by an\
+          \ institution, using an identification scheme."
+        items:
+          $ref: "#/definitions/GenericOrganisationIdentification1"
+    description: "Unique and unambiguous way to identify an organisation."
+  AnyBICDec2014Identifier:
+    type: "string"
+    pattern: "^[A-Z0-9]{4,4}[A-Z]{2,2}[A-Z0-9]{2,2}([A-Z0-9]{3,3}){0,1}$"
+    description: "Code allocated to a financial or non-financial institution by the\
+      \ ISO 9362 Registration Authority, as described in ISO 9362: 2014 - \"Banking\
+      \ - Banking telecommunication messages - Business identifier code (BIC)\"."
+  LEIIdentifier:
+    type: "string"
+    pattern: "^[A-Z0-9]{18,18}[0-9]{2,2}$"
+    description: "Legal Entity Identifier is a code allocated to a party as described\
+      \ in ISO 17442 \"Financial Services - Legal Entity Identifier (LEI)\"."
+  GenericOrganisationIdentification1:
+    type: "object"
+    required:
+    - "identification"
+    properties:
+      identification:
+        $ref: "#/definitions/Max35Text"
+      scheme_name:
+        $ref: "#/definitions/OrganisationIdentificationSchemeName1Choice"
+      issuer:
+        $ref: "#/definitions/Max35Text"
+    description: "Information related to an identification of an organisation."
+  OrganisationIdentificationSchemeName1Choice:
+    type: "object"
+    properties:
+      code:
+        $ref: "#/definitions/ExternalOrganisationIdentification1Code"
+      proprietary:
+        $ref: "#/definitions/Max35Text"
+    description: "Sets of elements to identify a name of the organisation identification\
+      \ scheme."
+  ExternalOrganisationIdentification1Code:
+    type: "string"
+    description: "Specifies the external organisation identification scheme name code\
+      \ in the format of character string with a maximum length of 4 characters.\r\
+      \nThe list of valid codes is an external code list published separately.\r\n\
+      External code sets can be downloaded from www.iso20022.org."
+  PersonIdentification13:
+    type: "object"
+    properties:
+      date_and_place_of_birth:
+        $ref: "#/definitions/DateAndPlaceOfBirth1"
+      other:
+        type: "array"
+        description: "Unique identification of a person, as assigned by an institution,\
+          \ using an identification scheme."
+        items:
+          $ref: "#/definitions/GenericPersonIdentification1"
+    description: "Unique and unambiguous way to identify a person."
+  DateAndPlaceOfBirth1:
+    type: "object"
+    required:
+    - "birth_date"
+    - "country_of_birth"
+    properties:
+      birth_date:
+        $ref: "#/definitions/ISODate"
+      province_of_birth:
+        $ref: "#/definitions/Max35Text"
+      country_of_birth:
+        $ref: "#/definitions/CountryCode"
+    description: "Date and place of birth of a person."
+  ISODate:
+    type: "string"
+    pattern: "^(?:[1-9]\\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\\\
+      d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)$"
+    description: "A particular point in the progression of time in a calendar year\
+      \ expressed in the YYYY-MM-DD format. This representation is defined in \"XML\
+      \ Schema Part 2: Datatypes Second Edition - W3C Recommendation 28 October 2004\"\
+      \ which is aligned with ISO 8601."
+  GenericPersonIdentification1:
+    type: "object"
+    required:
+    - "identification"
+    properties:
+      identification:
+        $ref: "#/definitions/Max35Text"
+      scheme_name:
+        $ref: "#/definitions/PersonIdentificationSchemeName1Choice"
+      issuer:
+        $ref: "#/definitions/Max35Text"
+    description: "Information related to an identification of a person."
+  PersonIdentificationSchemeName1Choice:
+    type: "object"
+    properties:
+      code:
+        $ref: "#/definitions/ExternalPersonIdentification1Code"
+      proprietary:
+        $ref: "#/definitions/Max35Text"
+    description: "Sets of elements to identify a name of the identification scheme."
+  ExternalPersonIdentification1Code:
+    type: "string"
+    description: "Specifies the external person identification scheme name code in\
+      \ the format of character string with a maximum length of 4 characters.\r\n\
+      The list of valid codes is an external code list published separately.\r\nExternal\
+      \ code sets can be downloaded from www.iso20022.org."
+  Contact4:
+    type: "object"
+    properties:
+      name_prefix:
+        $ref: "#/definitions/NamePrefix2Code"
+      name:
+        $ref: "#/definitions/Max140Text"
+      phone_number:
+        $ref: "#/definitions/PhoneNumber"
+      mobile_number:
+        $ref: "#/definitions/PhoneNumber"
+      fax_number:
+        $ref: "#/definitions/PhoneNumber"
+      email_address:
+        $ref: "#/definitions/Max2048Text"
+      email_purpose:
+        $ref: "#/definitions/Max35Text"
+      job_title:
+        $ref: "#/definitions/Max35Text"
+      responsibility:
+        $ref: "#/definitions/Max35Text"
+      department:
+        $ref: "#/definitions/Max70Text"
+      other:
+        type: "array"
+        description: "Contact details in another form."
+        items:
+          $ref: "#/definitions/OtherContact1"
+      preferred_method:
+        $ref: "#/definitions/PreferredContactMethod1Code"
+    description: "Specifies the details of the contact person."
+  NamePrefix2Code:
+    type: "string"
+    description: "Specifies the terms used to formally address a person."
+    enum:
+    - "DOCT"
+    - "MADM"
+    - "MISS"
+    - "MIST"
+    - "MIKS"
+  PhoneNumber:
+    type: "string"
+    pattern: "^\\+[0-9]{1,3}-[0-9()+\\-]{1,30}$"
+    description: "The collection of information which identifies a specific phone\
+      \ or FAX number as defined by telecom services.\nIt consists of a \"+\" followed\
+      \ by the country code (from 1 to 3 characters) then a \"-\" and finally, any\
+      \ combination of numbers, \"(\", \")\", \"+\" and \"-\" (up to 30 characters)."
+  Max2048Text:
+    type: "string"
+    minLength: 1
+    maxLength: 2048
+    description: "Specifies a character string with a maximum length of 2048 characters."
+  OtherContact1:
+    type: "object"
+    required:
+    - "channel_type"
+    properties:
+      channel_type:
+        $ref: "#/definitions/Max4Text"
+      identification:
+        $ref: "#/definitions/Max128Text"
+    description: "Communication device number or electronic address used for communication."
+  Max4Text:
+    type: "string"
+    minLength: 1
+    maxLength: 4
+    description: "Specifies a character string with a maximum length of 4 characters."
+  Max128Text:
+    type: "string"
+    minLength: 1
+    maxLength: 128
+    description: "Specifies a character string with a maximum length of 128 characters."
+  PreferredContactMethod1Code:
+    type: "string"
+    description: "Preferred method used to reach the individual contact within an\
+      \ organisation."
+    enum:
+    - "LETT"
+    - "MAIL"
+    - "PHON"
+    - "FAXX"
+    - "CELL"
+  Max500Text:
+    type: "string"
+    minLength: 1
+    maxLength: 500
+    description: "Specifies a character string with a maximum length of 500 characters."
+  ActiveCurrencyAndAmount:
+    type: "object"
+    properties:
+      currency:
+        $ref: "#/definitions/ActiveCurrencyCode"
+      amount:
+        type: "string"
+        maxLength: 19
+    description: "A number of monetary units specified in an active currency where\
+      \ the unit of currency is explicit and compliant with ISO 4217."
+  ActiveCurrencyCode:
+    type: "string"
+    pattern: "^[A-Z]{3,3}$"
+    description: "A code allocated to a currency by a Maintenance Agency under an\
+      \ international identification scheme as described in the latest edition of\
+      \ the international standard ISO 4217 \"Codes for the representation of currencies\
+      \ and funds\"."
+  DateAndDateTime2Choice:
+    type: "object"
+    properties:
+      date:
+        $ref: "#/definitions/ISODate"
+      date_time:
+        $ref: "#/definitions/ISODateTime"
+    description: "Choice between a date or a date and time format."
+  ISODateTime:
+    type: "string"
+    pattern: "^(?:[1-9]\\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\\\
+      d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\\\
+      d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.[0-9]+)?(?:Z|[+-][01]\\d:[0-5]\\d)?$"
+    description: "A particular point in the progression of time defined by a mandatory\
+      \ date and a mandatory time component, expressed in either UTC time format (YYYY-MM-DDThh:mm:ss.sssZ),\
+      \ local time with UTC offset format (YYYY-MM-DDThh:mm:ss.sss+/-hh:mm), or local\
+      \ time format (YYYY-MM-DDThh:mm:ss.sss). These representations are defined in\
+      \ \"XML Schema Part 2: Datatypes Second Edition - W3C Recommendation 28 October\
+      \ 2004\" which is aligned with ISO 8601.\nNote on the time format:\n1) beginning\
+      \ / end of calendar day\n00:00:00 = the beginning of a calendar day\n24:00:00\
+      \ = the end of a calendar day\n2) fractions of second in time format\nDecimal\
+      \ fractions of seconds may be included. In this case, the involved parties shall\
+      \ agree on the maximum number of digits that are allowed."
+  ConsentResponse:
+    type: "object"
+    required:
+    - "consumer_consent_resource_identification"
+    properties:
+      consumer_consent_resource_identification:
+        $ref: "#/definitions/Max35Text"
+    example:
+      consumer_consent_resource_identification: "CC0001"
+  LoanOfferRequest:
+    type: "object"
+    required:
+    - "consumer_consent_resource_identification"
+    - "principal_amount"
+    - "purpose"
+    properties:
+      consumer_consent_resource_identification:
+        $ref: "#/definitions/Max35Text"
+      principal_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      purpose:
+        $ref: "#/definitions/LoanPurpose1"
+      subsidy:
+        $ref: "#/definitions/LoanSubsidy1"
+      charges_and_fees:
+        $ref: "#/definitions/LoanCharges1"
+      up_front_payment:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      number_of_tranches:
+        $ref: "#/definitions/PositiveNumber"
+    description: "Loan offer request"
+    example:
+      consumer_consent_resource_identification: "CC0001"
+      principal_amount:
+        currency: "EUR"
+        Amount: "3000"
+      purpose:
+        description: "TV01"
+      up_front_payment:
+        amount: "500"
+        currency: "EUR"
+  LoanPurpose1:
+    type: "object"
+    required:
+    - "description"
+    properties:
+      description:
+        $ref: "#/definitions/Max500Text"
+      line_item:
+        type: "array"
+        description: "Provides the details of the line items for which the loan has\
+          \ been requested."
+        items:
+          $ref: "#/definitions/LoanLineItem1"
+    description: "Specifies the purpose for a loan."
+  LoanLineItem1:
+    type: "object"
+    properties:
+      identification:
+        $ref: "#/definitions/Max35Text"
+      description:
+        $ref: "#/definitions/Max2048Text"
+      amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+    description: "Provides the line item details.\r\n"
+  LoanSubsidy1:
+    type: "object"
+    properties:
+      type:
+        $ref: "#/definitions/Max35Text"
+      rate:
+        $ref: "#/definitions/PercentageRate"
+      amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+    description: "Provides transaction specific interest information that applies\
+      \ to the underlying transaction."
+  PercentageRate:
+    type: "string"
+    maxLength: 12
+    description: "Rate expressed as a percentage, ie, in hundredths, eg, 0.7 is 7/10\
+      \ of a percent, and 7.0 is 7%."
+  LoanCharges1:
+    type: "object"
+    properties:
+      total:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      record:
+        type: "array"
+        description: "Provides details of the individual charges record."
+        items:
+          $ref: "#/definitions/LoanChargesRecord1"
+    description: "Provides further details on the charges and/or fees related to the\
+      \ loan."
+  LoanChargesRecord1:
+    type: "object"
+    required:
+    - "amount"
+    properties:
+      amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      type:
+        $ref: "#/definitions/Max35Text"
+      rate:
+        $ref: "#/definitions/PercentageRate"
+      tax:
+        $ref: "#/definitions/LoanChargesTax1"
+    description: "Provides individual record details on the charges related to the\
+      \ loan."
+  LoanChargesTax1:
+    type: "object"
+    properties:
+      amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      type:
+        $ref: "#/definitions/Max35Text"
+      rate:
+        $ref: "#/definitions/PercentageRate"
+    description: "Amount of money due to the tax authority, on the charges applied\
+      \ to the loan."
+  PositiveNumber:
+    type: "string"
+    maxLength: 19
+    description: "Number of objects represented as a positive integer."
+  LoanOfferResponse:
+    type: "object"
+    required:
+    - "loan_offers"
+    properties:
+      loan_offers:
+        type: "array"
+        items:
+          $ref: "#/definitions/LoanOffer1"
+    description: "Loan offer response"
+    example:
+      loan_offers:
+      - loan_offer_resource_identification: "LO0001"
+        principal_amount:
+          currency: "EUR"
+          Amount: "3000"
+        validity_date:
+          date_time:
+            from_date_time: "2018-05-30T08:00:00Z"
+            to_date_time: "2018-06-01T23:59:59Z"
+        purpose:
+          description: "TV1"
+          line_item:
+          - identification: "TV Set"
+        interest_rate:
+        - rate: "2.00"
+        number_of_tranches: "3"
+        tranche:
+        - tranche_number: "T0001"
+          due_date: "2018-07-01"
+          principal_amount:
+            currency: "EUR"
+            amount: "1000"
+          interest_amount:
+            currency: "EUR"
+            amount: "4.95"
+          last_tranche_indicator: false
+        - tranche_number: "T0002"
+          due_date: "2018-08-01"
+          principal_amount:
+            currency: "EUR"
+            amount: "1000"
+          interest_amount:
+            currency: "EUR"
+            amount: "3.30"
+          last_tranche_indicator: false
+        - tranche_number: "T0003"
+          due_date: "2018-09-01"
+          principal_amount:
+            currency: "EUR"
+            amount: "1000"
+          interest_amount:
+            currency: "EUR"
+            amount: "1.65"
+          last_tranche_indicator: true
+        charges_and_fees:
+          record:
+          - amount:
+              currency: "EUR"
+              amount: "30"
+            type: "SETUP"
+        total_loan_cost:
+          currency: "EUR"
+          amount: "3039.90"
+        hal_links:
+          consent:
+            href: "a"
+            uri_template: true
+          loan_offers:
+          - href: "a"
+            uri_template: true
+      - loan_offer_resource_identification: "LO0002"
+        principal_amount:
+          currency: "EUR"
+          Amount: "3000"
+        total_loan_cost:
+          currency: "EUR"
+          amount: "3039.90"
+        validity_date:
+          date_time:
+            from_date_time: "2018-05-30T08:00:00Z"
+            to_date_time: "2018-06-01T23:59:59Z"
+        purpose:
+          description: "TV01"
+        interest_rate:
+        - rate: "1.50"
+        number_of_tranches: "3"
+        tranche:
+        - tranche_number: "T0011"
+          due_date: "2018-07-01"
+          principal_amount:
+            currency: "EUR"
+            Amount: "1500"
+          interest_amount:
+            currency: "EUR"
+            Amount: "3.72"
+          last_tranche_indicator: false
+        - tranche_number: "T0012"
+          due_date: "2018-09-01"
+          principal_amount:
+            currency: "EUR"
+            Amount: "1500"
+          interest_amount:
+            currency: "EUR"
+            Amount: "1.86"
+          last_tranche_indicator: true
+        hal_links:
+          consent:
+            href: "a"
+            uri_template: true
+          loan_offers:
+          - href: "a"
+            uri_template: true
+  LoanOffer1:
+    type: "object"
+    required:
+    - "hal_links"
+    - "interest_rate"
+    - "loan_offer_resource_identification"
+    - "number_of_tranches"
+    - "principal_amount"
+    - "purpose"
+    - "validity_date"
+    properties:
+      loan_offer_resource_identification:
+        $ref: "#/definitions/Max35Text"
+      principal_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      validity_date:
+        $ref: "#/definitions/DateOrDateTimePeriod2Choice"
+      purpose:
+        $ref: "#/definitions/LoanPurpose1"
+      interest_rate:
+        type: "array"
+        description: "Interest rate as proposed in the offer"
+        items:
+          $ref: "#/definitions/LoanInterest1"
+      number_of_tranches:
+        $ref: "#/definitions/PositiveNumber"
+      charges_and_fees:
+        $ref: "#/definitions/LoanCharges1"
+      exchange_rate:
+        $ref: "#/definitions/LoanExchangeRate1"
+      total_loan_cost:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      tranche:
+        type: "array"
+        description: "Part or division of the loan, used to define the repayment,\
+          \ such as an installement."
+        items:
+          $ref: "#/definitions/OfferTranche1"
+      hal_links:
+        $ref: "#/definitions/LoanOfferLinks"
+    description: "Individual loan offer attributes"
+  DateOrDateTimePeriod2Choice:
+    type: "object"
+    properties:
+      date:
+        $ref: "#/definitions/DatePeriod2"
+      date_time:
+        $ref: "#/definitions/DateTimePeriodDetails2"
+    description: "Choice between a date or a date and time format for a period."
+  DatePeriod2:
+    type: "object"
+    required:
+    - "from_date"
+    - "to_date"
+    properties:
+      from_date:
+        $ref: "#/definitions/ISODate"
+      to_date:
+        $ref: "#/definitions/ISODate"
+    description: "Range of time defined by a start date and an end date."
+  DateTimePeriodDetails2:
+    type: "object"
+    required:
+    - "from_date_time"
+    - "to_date_time"
+    properties:
+      from_date_time:
+        $ref: "#/definitions/ISODateTime"
+      to_date_time:
+        $ref: "#/definitions/ISODateTime"
+    description: "Time span defined by a start date and time, and an end date and\
+      \ time."
+  LoanInterest1:
+    type: "object"
+    required:
+    - "rate"
+    properties:
+      type:
+        $ref: "#/definitions/Max35Text"
+      rate:
+        $ref: "#/definitions/PercentageRate"
+      additional_information:
+        type: "array"
+        description: "Provides additional information on the interest rate, in free\
+          \ text format."
+        items:
+          $ref: "#/definitions/Max140Text"
+    description: "Provides transaction specific interest information that applies\
+      \ to the underlying transaction."
+  LoanExchangeRate1:
+    type: "object"
+    required:
+    - "exchange_rate"
+    - "quoted_currency"
+    - "unit_currency"
+    properties:
+      unit_currency:
+        $ref: "#/definitions/ActiveCurrencyCode"
+      quoted_currency:
+        $ref: "#/definitions/ActiveCurrencyCode"
+      exchange_rate:
+        $ref: "#/definitions/BaseOneRate"
+    description: "Loan reference exchange rate."
+  BaseOneRate:
+    type: "string"
+    maxLength: 12
+    description: "Rate expressed as a decimal, eg, 0.7 is 7/10 and 70%."
+  OfferTranche1:
+    type: "object"
+    required:
+    - "interest_amount"
+    - "principal_amount"
+    - "tranche_number"
+    properties:
+      tranche_number:
+        $ref: "#/definitions/PositiveNumber"
+      due_date:
+        $ref: "#/definitions/ISODate"
+      principal_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      interest_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      last_tranche_indicator:
+        $ref: "#/definitions/YesNoIndicator"
+    description: "Provides details on the tranches defined for the loan contract."
+  YesNoIndicator:
+    type: "boolean"
+    description: "Indicates a \"Yes\" or \"No\" type of answer for an element."
+  LoanOfferLinks:
+    type: "object"
+    properties:
+      consent:
+        $ref: "#/definitions/GenericLink"
+      loan_offers:
+        type: "array"
+        description: "Link to the offers of a given loan"
+        items:
+          $ref: "#/definitions/GenericLink"
+    description: "links that can be used for further navigation when browsing loan\
+      \ and consent information at offer level:\r\n      - consent: link to the consents\
+      \ related to an loan offer\r\n      - loan: link to the loan related to an loan\
+      \ offer"
+  GenericLink:
+    type: "object"
+    required:
+    - "href"
+    properties:
+      href:
+        $ref: "#/definitions/Max140Text"
+      uri_template:
+        $ref: "#/definitions/TrueFalseIndicator"
+    description: "hypertext reference"
+  TrueFalseIndicator:
+    type: "boolean"
+    description: "A flag indicating a True or False value."
+  LoanPaymentRefundRequest:
+    type: "object"
+    required:
+    - "loan_payment_resource_identification"
+    properties:
+      loan_payment_resource_identification:
+        $ref: "#/definitions/Max35Text"
+    example:
+      loan_payment_resource_identification: "LP0001"
+  LoanPaymentRefundResponse:
+    type: "object"
+    required:
+    - "return_amount"
+    properties:
+      return_account:
+        $ref: "#/definitions/AccountIdentification4Choice"
+      return_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+    example:
+      return_account:
+        other:
+          identification: "BankAccountId"
+      return_amount:
+        amount: "1000"
+        currency: "EUR"
+  AccountIdentification4Choice:
+    type: "object"
+    properties:
+      iban:
+        $ref: "#/definitions/IBAN2007Identifier"
+      other:
+        $ref: "#/definitions/GenericAccountIdentification1"
+    description: "Specifies the unique identification of an account as assigned by\
+      \ the account servicer."
+  IBAN2007Identifier:
+    type: "string"
+    pattern: "^[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}$"
+    description: "An identifier used internationally by financial institutions to\
+      \ uniquely identify the account of a customer at a financial institution, as\
+      \ described in the latest edition of the international standard ISO 13616: 2007\
+      \ - \"Banking and related financial services - International Bank Account Number\
+      \ (IBAN)\"."
+  GenericAccountIdentification1:
+    type: "object"
+    required:
+    - "identification"
+    properties:
+      identification:
+        $ref: "#/definitions/Max34Text"
+      scheme_name:
+        $ref: "#/definitions/AccountSchemeName1Choice"
+      issuer:
+        $ref: "#/definitions/Max35Text"
+    description: "Information related to a generic account identification."
+  Max34Text:
+    type: "string"
+    minLength: 1
+    maxLength: 34
+    description: "Specifies a character string with a maximum length of 34 characters."
+  AccountSchemeName1Choice:
+    type: "object"
+    properties:
+      code:
+        $ref: "#/definitions/ExternalAccountIdentification1Code"
+      proprietary:
+        $ref: "#/definitions/Max35Text"
+    description: "Sets of elements to identify a name of the identification scheme."
+  ExternalAccountIdentification1Code:
+    type: "string"
+    description: "Specifies the external account identification scheme name code in\
+      \ the format of character string with a maximum length of 4 characters.\r\n\
+      The list of valid codes is an external code list published separately.\r\nExternal\
+      \ code sets can be downloaded from www.iso20022.org."
+  LoanPaymentStatusRequest:
+    type: "object"
+    required:
+    - "loan_payment_resource_identification"
+    properties:
+      loan_payment_resource_identification:
+        $ref: "#/definitions/Max35Text"
+    example:
+      loan_payment_resource_identification: "LP0001"
+  LoanPaymentStatusResponse:
+    type: "object"
+    required:
+    - "status_code"
+    properties:
+      status_code:
+        $ref: "#/definitions/Status5Code"
+    example:
+      status_code: "PACK"
+  LoanPaymentVoidRequest:
+    type: "object"
+    required:
+    - "loan_payment_resource_identification"
+    properties:
+      loan_payment_resource_identification:
+        $ref: "#/definitions/Max35Text"
+    example:
+      loan_payment_resource_identification: "LP0001"
+  LoanPaymentVoidResponse:
+    type: "object"
+    required:
+    - "status_code"
+    properties:
+      status_code:
+        $ref: "#/definitions/Status4Code"
+    example:
+      status_code: "PACK"
+  Status4Code:
+    type: "string"
+    description: "Specifies the status of an instruction."
+    enum:
+    - "REJT"
+    - "PACK"
+  LoanPaymentRequest:
+    type: "object"
+    required:
+    - "credit_transfer_initiation"
+    - "hal_links"
+    - "interest"
+    - "loan_offer_resource_identification"
+    - "number_of_tranches"
+    - "principal_amount"
+    - "purpose"
+    properties:
+      loan_offer_resource_identification:
+        $ref: "#/definitions/Max35Text"
+      principal_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      purpose:
+        $ref: "#/definitions/LoanPurpose1"
+      interest:
+        type: "array"
+        description: "Interest rate as proposed in the offer"
+        items:
+          $ref: "#/definitions/LoanInterest1"
+      charges_and_fees:
+        $ref: "#/definitions/LoanCharges1"
+      number_of_tranches:
+        $ref: "#/definitions/PositiveNumber"
+      tranche:
+        type: "array"
+        description: "Part or division of the loan, used to define the repayment,\
+          \ such as an installement."
+        items:
+          $ref: "#/definitions/LoanTranche1"
+      credit_transfer_initiation:
+        $ref: "#/definitions/CreditTransferInitiation1"
+      hal_links:
+        $ref: "#/definitions/LoanOfferLinks"
+      return_account:
+        $ref: "#/definitions/AccountIdentification4Choice"
+    example:
+      loan_offer_resource_identification: "LO0001"
+      principal_amount:
+        currency: "EUR"
+        Amount: "2500"
+      purpose:
+        description: "TV01"
+      interest:
+      - rate: "2.00"
+      number_of_tranches: "3"
+      tranche:
+      - tranche_number: "T0001"
+        due_date: "2018-07-01"
+        principal_amount:
+          currency: "EUR"
+          Amount: "1000"
+        interest_amount:
+          currency: "EUR"
+          Amount: "4.95"
+        last_tranche_indicator: false
+      - tranche_number: "T0002"
+        due_date: "2018-08-01"
+        principal_amount:
+          currency: "EUR"
+          Amount: "1000"
+        interest_amount:
+          currency: "EUR"
+          Amount: "3.30"
+        last_tranche_indicator: false
+      - tranche_number: "T0003"
+        due_date: "2018-09-01"
+        principal_amount:
+          currency: "EUR"
+          Amount: "1000"
+        interest_amount:
+          currency: "EUR"
+          Amount: "1.65"
+        last_tranche_indicator: true
+      credit_transfer_initiation:
+        creditor_name: "Customer"
+        creditor_account:
+          other:
+            identification: "CustomerAccountID"
+        creditor_reference: "CredREF01"
+        settlement_currency: "EUR"
+      hal_links:
+        consent:
+          href: "a"
+          uri_template: true
+        loan_offers:
+        - href: "a"
+          uri_template: true
+  LoanTranche1:
+    type: "object"
+    required:
+    - "interest_amount"
+    - "principal_amount"
+    - "tranche_number"
+    properties:
+      tranche_number:
+        $ref: "#/definitions/PositiveNumber"
+      due_date:
+        $ref: "#/definitions/ISODate"
+      principal_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      interest_amount:
+        $ref: "#/definitions/ActiveCurrencyAndAmount"
+      last_tranche_indicator:
+        $ref: "#/definitions/YesNoIndicator"
+    description: "Provides details on the tranches defined for the loan contract."
+  CreditTransferInitiation1:
+    type: "object"
+    required:
+    - "creditor_account"
+    - "creditor_name"
+    properties:
+      creditor_name:
+        $ref: "#/definitions/Max140Text"
+      creditor_account:
+        $ref: "#/definitions/AccountIdentification4Choice"
+      ultimate_creditor_name:
+        $ref: "#/definitions/Max140Text"
+      creditor_reference:
+        $ref: "#/definitions/Max35Text"
+      settlement_currency:
+        $ref: "#/definitions/ActiveCurrencyCode"
+    description: "Provides the details for the initiation of the payment."
+  LoanPaymentResponse:
+    type: "object"
+    required:
+    - "loan_payment_resource_identification"
+    properties:
+      loan_payment_resource_identification:
+        $ref: "#/definitions/Max35Text"
+    example:
+      loan_payment_resource_identification: "LP0001"
+  ErrorCode_status:
+    required:
+    - "code"
+    - "severity"
+    - "text"
+    properties:
+      severity:
+        type: "string"
+        enum:
+        - "Fatal"
+        - "Transient"
+      code:
+        type: "string"
+      text:
+        type: "string"

@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "name": "Speaker System",
+        "description": "Live sound at home",
+        "price" : 850,
+        "img_link" : "https://i5.walmartimages.com/asr/66c20913-fb3c-4ba9-b7bb-60a335485a03_1.a0403551af6994137c06cb2150429c42.jpeg?odnHeight=450&odnWidth=450&odnBg=FFFFFF"
+    },
+    {
+        "id": 2,
+        "name": "Weekend Trip",
+        "description": "Two days in Madrid",
+        "price" : 850,
+        "img_link" : "https://media.timeout.com/images/103800502/630/472/image.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Treehouse",
+        "description": "House on a tree",
+        "price" : 850,
+        "img_link" : "https://bloximages.chicago2.vip.townnews.com/missoulian.com/content/tncms/assets/v3/editorial/c/48/c48b96d0-fd8d-11e3-b2c3-0019bb2963f4/53acb3a41d7c3.image.jpg"
+    }
+]
