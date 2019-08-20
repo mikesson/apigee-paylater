@@ -1,4 +1,5 @@
 # [START gae_quickstart_yaml]
-service: paylater-core
+service: paylater-walkthrough
 runtime: nodejs10
 # [END gae_quickstart_yaml]
+

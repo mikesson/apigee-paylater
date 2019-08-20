@@ -23,30 +23,62 @@ const app = dialogflow({
     client_id: 'dialogflow-ykpjia@apigee-paylater.iam.gserviceaccount.com'
 })
 
-
 // STATIC VARIABLE DECLARATION ----------------------
 const API_HOST = 'https://demo38-test.apigee.net'
-const API_BASE_PATH = '/paylater';
+const PAYLATER_BASE_PATH = '/paylater';
+const PAYLATER_WT_BASE_PATH = '/paylater-walkthrough'
 const API_VERSION = '/v1';
-const API_BASE_URL = API_HOST + API_BASE_PATH + API_VERSION; // used as request default
+const PAYLATER_BASE_URL = PAYLATER_BASE_PATH + API_VERSION;
+const PAYLATER_WT_BASE_URL = PAYLATER_WT_BASE_PATH + API_VERSION
 
-const PATH_PRODUCT_DETAILS = 'products'
+const PATH_PRODUCTS = '/products'
+const PATH_BANKS_LIST = '/banks'
 
-const PATH_RECOMMENDATIONS = '/recommendations'; // used as /recommendations/{user_id}
-const PATH_ADVERTISEMENTS = '/ads'; // get all ads
-const PATH_PRODUCTS = '/products'; // for all or /products/{id} for onw
-
-//const URL_USERINFO = 'https://www.googleapis.com/oauth2/v3/userinfo';
 
 const API_KEY = 't3YGmjt8xNMQJwtOT9c9Boc2zLfDXl99';
 
-const INTENT_WELCOME = 'Default Welcome Intent';
+//const URL_USERINFO = 'https://www.googleapis.com/oauth2/v3/userinfo';
+
+
+// Intents
+const INTENT_WELCOME = 'Welcome Intent'
+
+const INTENT_INTEREST_IN_PAYLATER = 'Interest in PayLater'
+const INTENT_INTEREST_IN_PAYLATER_YES = 'Interest in PayLater - yes'
+const INTENT_INTEREST_IN_PAYLATER_NO = 'Interest in PayLater - no'
+const INTENT_HANDLE_PRODUCT_SELECTION = 'Handle Product Selection'
+
+
+// UI Suggestions
+const SUGGESTION_WHATS_PAYLATER = 'Do you support PayLater?'
+const SUGGESTION_NEAREST_ATM = 'Nearest ATM'
+const SUGGESTION_BYE = 'Bye'
+
+
+// Responses
+
+const RESP_INTRO_FIRST = 'Welcome back to the Apigee Bank assistant!'
+const RESP_INTRO_RETURNING = 'Hi, I am your Apigee bank assistant!'
+const RESP_PAYLATER_SUPPORT = 'Good you ask, indeed we do. Curious to see how it works?'
+const RESP_PAYLATER_YES = 'Great, let\'s play through a scenario. Pick one of the products below:'
+const RESP_PAYLATER_NO = 'Ok. '
+
+
+const RESP_WHAT_CAN_I_DO = 'What can I do for you?'
+const RESP_ANYTHING_ELSE = 'Anything else I can do for you?'
+const RESP_BYE = 'Bye then!'
+
+
+
+
+
 const INTENT_RECOMMENDATIONS = 'Recommendations';
 const INTENT_WHAT_CAN_YOU_DO = 'What can you do';
 const INTENT_END_CONVERSATION = 'Ending Conversation';
 const INTENT_INTEREST_IN_RECOMMENDATION_NO = 'Recommendations - Interested in any product? No';
 const INTENT_INTEREST_IN_RECOMMENDATION_YES = 'Recommendations - Interested in any product? Yes';
 const INTENT_ADD_TO_CART_FROM_RECOMMENDATIONS = 'Check Product Exists and Add to Cart';
+
 
 const SUGGESTION_YES = 'Yes';
 const SUGGESTION_NO = 'No';
@@ -65,13 +97,103 @@ const RESP_ERROR = 'Sorry, there has been an error, could you try again please?'
 // Configuration of Request Defaults ----------------
 
 const req = request.defaults({
-    baseUrl: API_BASE_URL,
+    baseUrl: API_HOST,
     headers: {
         apikey: API_KEY
     },
     json: true
 })
 
+
+app.intent(INTENT_WELCOME, (conv) => {
+    console.log('Starting intent "' + INTENT_WELCOME + '" ...');
+    //console.log('conv.user object: "' + JSON.stringify(conv.user) + '"');
+    conv.contexts.set(CONTEXT_HANDLE_CHOICE, 1);
+    if (conv.user.last.seen) {
+        conv.ask(RESP_INTRO_RETURNING);
+    } else {
+        conv.ask(RESP_INTRO_FIRST);
+    }
+    conv.ask(RESP_WHAT_CAN_I_DO);
+    conv.ask(new Suggestions([SUGGESTION_WHATS_PAYLATER, SUGGESTION_NEAREST_ATM, SUGGESTION_BYE]));
+});
+
+
+app.intent(INTENT_INTEREST_IN_PAYLATER, (conv) => {
+    console.log('Starting intent "' + INTENT_INTEREST_IN_PAYLATER + '" ...');
+    conv.ask(RESP_PAYLATER_SUPPORT);
+    conv.ask(new Suggestions([SUGGESTION_YES, SUGGESTION_NO]));
+});
+
+
+app.intent(INTENT_INTEREST_IN_PAYLATER_YES, (conv) => {
+    console.log('Starting intent "' + INTENT_INTEREST_IN_PAYLATER_YES + '" ...');
+    conv.ask(RESP_PAYLATER_YES)
+    var uri = PAYLATER_WT_BASE_URL + PATH_PRODUCTS
+    return req.get({
+        uri: uri
+    }).then(respProducts => {
+        console.log('Response from "' + uri + '": ' + JSON.stringify(respProducts));
+        var itemsCompose = {};
+        var noOfProducts = respProducts.length;
+        console.log(noOfProducts);
+        for (var j = 0; j < noOfProducts; j++) {
+            try {
+                var selection_key = respProducts[j].id;
+                //console.log(selection_key);
+                itemsCompose[selection_key] = {
+                    synonyms: [], title: respProducts[j].name,
+                    description: respProducts[j].description,
+                    image: new Image({ url: respProducts[j].img_link, alt: respProducts[j].name })
+                };
+                console.log(JSON.stringify(itemsCompose));
+            } catch (error) {
+                console.log('Error when creating carousel list"): ' + error);
+            }
+        }
+        conv.ask(new Carousel({
+            items: itemsCompose
+        }));
+    }).catch(error => {
+        console.log('Error ("' + uri + '"): ' + error);
+        conv.ask(RESP_ERROR);
+        return;
+    });
+});
+
+
+app.intent(INTENT_INTEREST_IN_PAYLATER_NO, (conv) => {
+    console.log('Starting intent "' + INTENT_INTEREST_IN_PAYLATER_NO + '" ...');
+    conv.ask(RESP_PAYLATER_NO)
+    conv.ask(RESP_ANYTHING_ELSE)
+});
+
+
+
+app.intent(INTENT_HANDLE_PRODUCT_SELECTION, (conv, params, option) => {
+    console.log('Starting intent "' + INTENT_HANDLE_PRODUCT_SELECTION + '" ...');
+    //conv.ask('all good, you have selected option: ' + option);
+    var uri = PAYLATER_WT_BASE_URL + PATH_PRODUCTS + '/' + option
+    return req.get({
+        uri: uri
+    }).then(respProduct => {
+        console.log('Response from "' + uri + '": ' + JSON.stringify(respProduct));
+
+        conv.ask('You\'ve selected the ' + respProduct.name + ', costing ' + respProduct.price + '£')
+        conv.ask('At a merchant\'s site, you can now select PayLater. Then, choose our bank.')
+    }).catch(error => {
+        console.log('Error ("' + uri + '"): ' + error);
+        conv.ask(RESP_ERROR);
+        return;
+    });
+
+
+    // let response = 'You did not select any item';
+    // if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
+    //     response = SELECTED_ITEM_RESPONSES[option];
+    // }
+    // conv.ask(response);
+});
 
 
 // app.intent('ask_for_sign_in', (conv) => {
@@ -94,59 +216,62 @@ const req = request.defaults({
 
 
 
+// app.intent(INTENT_WELCOME, (conv) => {
+//     console.log('Starting intent "' + INTENT_WELCOME + '" ...');
+//     //console.log('conv.user object: "' + JSON.stringify(conv.user) + '"');
+//     conv.contexts.set(CONTEXT_HANDLE_CHOICE, 1);
+//     if (conv.user.last.seen) {
+//         conv.ask('Welcome back to the Apigee Bank assistant!');
+//     } else {
+//         conv.ask('Hi, I am your Apigee bank assistant!');
+//     }
+//     // return req.get({
+//     //     uri: PATH_ADVERTISEMENTS
+//     // }).then(body => {
+//     //     console.log('Response from "' + PATH_ADVERTISEMENTS + '": ' + JSON.stringify(body));
+//     //     var itemsCompose = {};
+//     //     var arrayLength = body.ads.length;
+//     //     for (var i = 0; i < arrayLength; i++) {
+//     //         var productUri = body.ads[i].redirectUrl;
+//     //         //console.log(productUri);
+//     //         productUri = productUri.substr(1);
+//     //         productUri = productUri.replace("/", "_");
+//     //         var synonym = productUri.replace('_', ' ');
+//     //         var synonym2 = synonym.replace('product', 'item');
+//     //         itemsCompose[productUri] = {
+//     //             synonyms: [
+//     //                 synonym, synonym2
+//     //             ], title: body.ads[i].text
+//     //         };
+//     //     }
+//     //     console.log('arrayLength is: ' + arrayLength);
+//     //     if (itemsCompose.length === 1){
+//     //         console.log('as length is 1, adding a bogus item as a workaround');
+//     //         itemsCompose['Super Swag'] = {
+//     //             synonyms: [
+//     //                 'Swagger', 'Swag Item'
+//     //             ], title: 'Super Swag 22% off'
+//     //         };
+//     //     }
 
-app.intent(INTENT_WELCOME, (conv) => {
-    console.log('Starting intent "' + INTENT_WELCOME + '" ...');
-    //console.log('conv.user object: "' + JSON.stringify(conv.user) + '"');
-    conv.contexts.set(CONTEXT_HANDLE_CHOICE, 1);
-    if (conv.user.last.seen) {
-        conv.ask('Welcome back to the Hipster Shop assistant!');
-    } else {
-        conv.ask('Hi, I am your Hipster Shop assistant!');
-    }
-    return req.get({
-        uri: PATH_ADVERTISEMENTS
-    }).then(body => {
-        console.log('Response from "' + PATH_ADVERTISEMENTS + '": ' + JSON.stringify(body));
-        var itemsCompose = {};
-        var arrayLength = body.ads.length;
-        for (var i = 0; i < arrayLength; i++) {
-            var productUri = body.ads[i].redirectUrl;
-            //console.log(productUri);
-            productUri = productUri.substr(1);
-            productUri = productUri.replace("/", "_");
-            var synonym = productUri.replace('_', ' ');
-            var synonym2 = synonym.replace('product', 'item');
-            itemsCompose[productUri] = {
-                synonyms: [
-                    synonym, synonym2
-                ], title: body.ads[i].text
-            };
-        }
-        console.log('arrayLength is: ' + arrayLength);
-        if (itemsCompose.length === 1){
-            console.log('as length is 1, adding a bogus item as a workaround');
-            itemsCompose['Super Swag'] = {
-                synonyms: [
-                    'Swagger', 'Swag Item'
-                ], title: 'Super Swag 22% off'
-            };
-        }
+//     //     if (conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
+//     //         conv.ask(new List({
+//     //             title: 'Ads',
+//     //             items: itemsCompose,
+//     //         }));
+//     //     }
+//     //     conv.ask(new Suggestions([SUGGESTION_RECOMMENDATIONS, SUGGESTION_ALLPRODUCTS]));
+//     //     return;
+//     // }).catch(error => {
+//     //     console.log('Error ("' + PATH_ADVERTISEMENTS + '"): ' + error);
+//     //     conv.ask('Sorry, there has been an error, could you try again please?');
+//     //     return;
+//     // });
 
-        if (conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
-            conv.ask(new List({
-                title: 'Ads',
-                items: itemsCompose,
-            }));
-        }
-        conv.ask(new Suggestions([SUGGESTION_RECOMMENDATIONS, SUGGESTION_ALLPRODUCTS]));
-        return;
-    }).catch(error => {
-        console.log('Error ("' + PATH_ADVERTISEMENTS + '"): ' + error);
-        conv.ask('Sorry, there has been an error, could you try again please?');
-        return;
-    });
-});
+//     conv.ask('What\'s up?');
+//     conv.ask(new Suggestions([SUGGESTION_WHATS_PAYLATER, SUGGESTION_NEAREST_ATM, SUGGESTION_BYE]));
+
+// });
 
 
 // app.intent(INTENT_HANDLE_CHOICE, (conv, params, option) => {

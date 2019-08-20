@@ -12,6 +12,11 @@
                 "get": {"httpStatus": 200, "mockFile": "products.json"}
             }
         },
+        "products/:id": {
+            "mockFile": "product.json",
+            "verbs": ["get"],
+            "switch": "id"
+          },
         "banks": {
             "latency": 25,
             "verbs": ["get"],
