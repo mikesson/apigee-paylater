@@ -23,6 +23,11 @@
             "responses": {
                 "get": {"httpStatus": 200, "mockFile": "banks.json"}
             }
-        }
+        },
+        "banks/:id": {
+            "mockFile": "bank.json",
+            "verbs": ["get"],
+            "switch": "id"
+          }
     }
 }

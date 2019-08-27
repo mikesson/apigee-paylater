@@ -8,13 +8,17 @@ process.env.DEBUG = 'actions-on-google:*,request';
 const functions = require('firebase-functions');
 const request = require('request-promise');
 const requestLoop = require('request-promise');
+const requestOIDC = require('request-promise');
 
 const {
     dialogflow,
     List,
     Carousel,
     Image,
-    Suggestions} = require('actions-on-google');
+    SignIn,
+    BasicCard,
+    Table,
+    Suggestions } = require('actions-on-google');
 
 
 // DIALOGFLOW INIT ----------------------------------
@@ -32,12 +36,13 @@ const PAYLATER_BASE_URL = PAYLATER_BASE_PATH + API_VERSION;
 const PAYLATER_WT_BASE_URL = PAYLATER_WT_BASE_PATH + API_VERSION
 
 const PATH_PRODUCTS = '/products'
-const PATH_BANKS_LIST = '/banks'
+const PATH_BANKS = '/banks'
 
 
 const API_KEY = 't3YGmjt8xNMQJwtOT9c9Boc2zLfDXl99';
+const CONSUMER_ID = '12345'
 
-//const URL_USERINFO = 'https://www.googleapis.com/oauth2/v3/userinfo';
+const URL_USERINFO = 'https://www.googleapis.com/oauth2/v3/userinfo';
 
 
 // Intents
@@ -47,7 +52,13 @@ const INTENT_INTEREST_IN_PAYLATER = 'Interest in PayLater'
 const INTENT_INTEREST_IN_PAYLATER_YES = 'Interest in PayLater - yes'
 const INTENT_INTEREST_IN_PAYLATER_NO = 'Interest in PayLater - no'
 const INTENT_HANDLE_PRODUCT_SELECTION = 'Handle Product Selection'
-
+const INTENT_HANDLE_BANK_SELECTION = 'Handle Bank Selection'
+const INTENT_GET_SIGNIN = "Get SignIn"
+const INTENT_GET_UPFRONT_PAYMENT = 'Get Loan Upfront Payment'
+const INTENT_END_CONVERSATION = 'End Conversation'
+const INTENT_WHAT_CAN_YOU_DO = 'What can yo do'
+const INTENT_LOAN_ACCEPTED = 'Loan Payment Accept'
+const INTENT_LOAN_DENIED = 'Load Payment Denied'
 
 // UI Suggestions
 const SUGGESTION_WHATS_PAYLATER = 'Do you support PayLater?'
@@ -56,7 +67,6 @@ const SUGGESTION_BYE = 'Bye'
 
 
 // Responses
-
 const RESP_INTRO_FIRST = 'Welcome back to the Apigee Bank assistant!'
 const RESP_INTRO_RETURNING = 'Hi, I am your Apigee bank assistant!'
 const RESP_PAYLATER_SUPPORT = 'Good you ask, indeed we do. Curious to see how it works?'
@@ -64,33 +74,22 @@ const RESP_PAYLATER_YES = 'Great, let\'s play through a scenario. Pick one of th
 const RESP_PAYLATER_NO = 'Ok. '
 
 
+
 const RESP_WHAT_CAN_I_DO = 'What can I do for you?'
 const RESP_ANYTHING_ELSE = 'Anything else I can do for you?'
 const RESP_BYE = 'Bye then!'
 
 
-
-
-
-const INTENT_RECOMMENDATIONS = 'Recommendations';
-const INTENT_WHAT_CAN_YOU_DO = 'What can you do';
-const INTENT_END_CONVERSATION = 'Ending Conversation';
-const INTENT_INTEREST_IN_RECOMMENDATION_NO = 'Recommendations - Interested in any product? No';
-const INTENT_INTEREST_IN_RECOMMENDATION_YES = 'Recommendations - Interested in any product? Yes';
-const INTENT_ADD_TO_CART_FROM_RECOMMENDATIONS = 'Check Product Exists and Add to Cart';
-
-
 const SUGGESTION_YES = 'Yes';
 const SUGGESTION_NO = 'No';
-const SUGGESTION_RECOMMENDATIONS = 'Recommendations';
-const SUGGESTION_ALLPRODUCTS = 'All products';
-const SUGGESTION_CHANGECURRENCY = 'Change currency';
+
+const SUGGESTION_100 = '100'
+const SUGGESTION_200 = '200'
+const SUGGESTION_400 = '400'
 
 const CONTEXT_HANDLE_CHOICE = 'handle_choice';
 
-const RESP_TO_RECOMMENDATIONS = "Here are some recommendations for you. ";
-const RESP_TO_RECOMMENDATIONS_2 = "Are you interested in any of these products?";
-const RESP_TO_END_CONVERSATION = 'Alright, speak soon. Bye!';
+const RESP_TO_END_CONVERSATION = 'Speak soon. Bye!';
 const RESP_ERROR = 'Sorry, there has been an error, could you try again please?';
 
 
@@ -101,6 +100,12 @@ const req = request.defaults({
     headers: {
         apikey: API_KEY
     },
+    json: true
+})
+
+
+const reqOIDC = requestOIDC.defaults({
+    baseUrl: URL_USERINFO,
     json: true
 })
 
@@ -169,224 +174,183 @@ app.intent(INTENT_INTEREST_IN_PAYLATER_NO, (conv) => {
 });
 
 
-
 app.intent(INTENT_HANDLE_PRODUCT_SELECTION, (conv, params, option) => {
     console.log('Starting intent "' + INTENT_HANDLE_PRODUCT_SELECTION + '" ...');
-    //conv.ask('all good, you have selected option: ' + option);
     var uri = PAYLATER_WT_BASE_URL + PATH_PRODUCTS + '/' + option
+    var uri2 = PAYLATER_WT_BASE_URL + PATH_BANKS
     return req.get({
         uri: uri
     }).then(respProduct => {
         console.log('Response from "' + uri + '": ' + JSON.stringify(respProduct));
-
-        conv.ask('You\'ve selected the ' + respProduct.name + ', costing ' + respProduct.price + '£')
+        conv.ask('You\'ve selected the ' + respProduct.name + ', costing ' + respProduct.price + '£. ')
         conv.ask('At a merchant\'s site, you can now select PayLater. Then, choose our bank.')
+
+        // setting context
+        var parameters = {'selectedProductName':respProduct.name}
+        conv.contexts.set('productname-context', 5, parameters);
+        parameters = {'selectedProductPrice' : respProduct.price}
+        conv.contexts.set('productprice-context', 5, parameters);
+        
+
+        //second request
+        return req.get({
+            uri: uri2
+        }).then(respBanks => {
+            console.log('Response from "' + uri2 + '": ' + JSON.stringify(respBanks));
+            var itemsCompose = {};
+            var noOfBanks = respBanks.length;
+            console.log(noOfBanks);
+            for (var j = 0; j < noOfBanks; j++) {
+                try {
+                    var selection_key = respBanks[j].id;
+                    itemsCompose[selection_key] = {
+                        synonyms: [], title: respBanks[j].name,
+                        description: respBanks[j].description,
+                        image: new Image({ url: respBanks[j].img_link, alt: respBanks[j].name })
+                    };
+                    console.log(JSON.stringify(itemsCompose));
+                } catch (error) {
+                    console.log('Error when creating carousel list"): ' + error);
+                }
+            }
+            conv.ask(new Carousel({
+                items: itemsCompose
+            }));
+        }).catch(error => {
+            console.log('Error ("' + uri + '"): ' + error);
+            conv.ask(RESP_ERROR);
+            return;
+        });
     }).catch(error => {
         console.log('Error ("' + uri + '"): ' + error);
         conv.ask(RESP_ERROR);
         return;
     });
-
-
-    // let response = 'You did not select any item';
-    // if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
-    //     response = SELECTED_ITEM_RESPONSES[option];
-    // }
-    // conv.ask(response);
 });
 
 
-// app.intent('ask_for_sign_in', (conv) => {
-//     console.log('in intent "ask_for_sign_in" and asking for sign in now ...');
-//     conv.ask(new SignIn());
-// });
-
-// app.intent('ask_for_sign_in_confirmation', (conv, params, signin) => {
-//     console.log('in intent "ask_for_sign_in_confirmation" now ...');
-//     console.log('signin object: "' + JSON.stringify(signin) + '"');
-//     if (signin.status !== 'OK') {
-//         console.log('signin status not equal to OK  ...');
-//         return conv.ask('You need to sign in before using the app.');
-//     }
-//     const access = conv.user.access.token;
-//     console.log('access token is: "' + access + '"');
-//     // possibly do something with access token
-//     return conv.ask('Great! Thanks for signing in.');
-// });
+app.intent(INTENT_HANDLE_BANK_SELECTION, (conv, params, option) => {
+    console.log('Starting intent "' + INTENT_HANDLE_BANK_SELECTION + '" ...');
+    conv.ask('Just checking if you are logged in already ...');
+    conv.ask(new SignIn('To approve the merchant\'s consent request'));
+    conv.ask(new Suggestions([SUGGESTION_YES, SUGGESTION_NO]));
+});
 
 
+app.intent(INTENT_GET_SIGNIN, (conv, input, signin) => {
+    console.log('Starting intent "' + INTENT_GET_SIGNIN + '" ...');
+    console.log('signin object: "' + JSON.stringify(signin) + '"');
+    if (signin.status !== 'OK') {
+        console.log('signin NOT equal to "yes", starting signin now  ...');
+        console.log('just checking - conv object is: "' + JSON.stringify(conv) + '"');
+        conv.ask(`I won't be able to continue with the walkthrough without login, what do you want to do next?`)
+    } else {
+        const access = conv.user.access.token;
+        console.log('access token is: "' + access + '"');
+        var authHeader = 'Bearer ' + access;
+        // call userinfo now to get name
+        return reqOIDC.get({
+            uri: '',
+            headers: {
+                'Authorization': authHeader
+            }
+        }).then(body => {
+            userName = body.given_name;
+            console.log('Response from "' + URL_USERINFO + '": ' + JSON.stringify(body));
+            userName = body.given_name; // store userName
+            var response = "Thanks " + body.given_name + ", we can now approve the merchant\'s consent request."
+            //conv.ask(' !helas 2! ');
+            conv.ask(response);
+            conv.ask(new BasicCard({
+                text: '',
+                title: 'Approved Merchant',
+                image: new Image({
+                    url: 'https://cdn.pixabay.com/photo/2017/01/13/01/22/ok-1976099_960_720.png',
+                    alt: 'consent granted',
+                }),
+                display: 'CROPPED',
+            }));
+            conv.ask('As part or Pay Later, how much are you willing to pay upfront?');
+            conv.ask(new Suggestions([SUGGESTION_100, SUGGESTION_200, SUGGESTION_400]));
+            return;
+        }).catch(error => {
+            console.log('Error when calling ' + URL_USERINFO + ': ' + error);
+            conv.ask('There has been an issue with your account, please login again.');
+            conv.ask(new SignIn());
+            return;
+        })
+    }
+});
 
-// app.intent(INTENT_WELCOME, (conv) => {
-//     console.log('Starting intent "' + INTENT_WELCOME + '" ...');
-//     //console.log('conv.user object: "' + JSON.stringify(conv.user) + '"');
-//     conv.contexts.set(CONTEXT_HANDLE_CHOICE, 1);
-//     if (conv.user.last.seen) {
-//         conv.ask('Welcome back to the Apigee Bank assistant!');
-//     } else {
-//         conv.ask('Hi, I am your Apigee bank assistant!');
-//     }
-//     // return req.get({
-//     //     uri: PATH_ADVERTISEMENTS
-//     // }).then(body => {
-//     //     console.log('Response from "' + PATH_ADVERTISEMENTS + '": ' + JSON.stringify(body));
-//     //     var itemsCompose = {};
-//     //     var arrayLength = body.ads.length;
-//     //     for (var i = 0; i < arrayLength; i++) {
-//     //         var productUri = body.ads[i].redirectUrl;
-//     //         //console.log(productUri);
-//     //         productUri = productUri.substr(1);
-//     //         productUri = productUri.replace("/", "_");
-//     //         var synonym = productUri.replace('_', ' ');
-//     //         var synonym2 = synonym.replace('product', 'item');
-//     //         itemsCompose[productUri] = {
-//     //             synonyms: [
-//     //                 synonym, synonym2
-//     //             ], title: body.ads[i].text
-//     //         };
-//     //     }
-//     //     console.log('arrayLength is: ' + arrayLength);
-//     //     if (itemsCompose.length === 1){
-//     //         console.log('as length is 1, adding a bogus item as a workaround');
-//     //         itemsCompose['Super Swag'] = {
-//     //             synonyms: [
-//     //                 'Swagger', 'Swag Item'
-//     //             ], title: 'Super Swag 22% off'
-//     //         };
-//     //     }
-
-//     //     if (conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
-//     //         conv.ask(new List({
-//     //             title: 'Ads',
-//     //             items: itemsCompose,
-//     //         }));
-//     //     }
-//     //     conv.ask(new Suggestions([SUGGESTION_RECOMMENDATIONS, SUGGESTION_ALLPRODUCTS]));
-//     //     return;
-//     // }).catch(error => {
-//     //     console.log('Error ("' + PATH_ADVERTISEMENTS + '"): ' + error);
-//     //     conv.ask('Sorry, there has been an error, could you try again please?');
-//     //     return;
-//     // });
-
-//     conv.ask('What\'s up?');
-//     conv.ask(new Suggestions([SUGGESTION_WHATS_PAYLATER, SUGGESTION_NEAREST_ATM, SUGGESTION_BYE]));
-
-// });
-
-
-// app.intent(INTENT_HANDLE_CHOICE, (conv, params, option) => {
-//     conv.ask('all good, you have selected option: ' + option);
-// });
-
-app.intent(INTENT_RECOMMENDATIONS, (conv) => {
-    console.log('Starting intent "' + INTENT_RECOMMENDATIONS + '" ...');
-    //conv.ask(new SignIn());
-    //console.log('conv.user object: "' + JSON.stringify(conv.user) + '"');
-    conv.ask(RESP_TO_RECOMMENDATIONS);
-    var recommendationsFullPath = PATH_RECOMMENDATIONS + '/mike';
-    return req.get({
-        uri: recommendationsFullPath
-    }).then(body => {
-        console.log('Response from "' + recommendationsFullPath + '": ' + JSON.stringify(body));
-        body = {
-            "productIds": [
-                "OLJCESPC7Z",
-                "L9ECAV7KIM",
-                "2ZYFJ3GM2N",
-                "0PUK6V6EV0",
-                "66VCHSJNUP"
-            ]
-        };
-        var arrayLength = body.productIds.length;
-        var ps = [];
-        for (var i = 0; i < arrayLength; i++) {
-            var fullPath = PATH_PRODUCTS + '/' + body.productIds[i];
-            var get_product_details = {
-                baseUrl: API_BASE_URL,
-                uri: fullPath,
-                headers: {
-                    apikey: API_KEY
-                },
-                json: true
-            };
-            ps.push(requestLoop(get_product_details));
+app.intent(INTENT_GET_UPFRONT_PAYMENT, (conv, input) => {
+    console.log('Starting intent "' + INTENT_GET_UPFRONT_PAYMENT + '" ...');
+    console.log('input object: "' + JSON.stringify(input) + '"');
+    var num = input.number
+    console.log('number is: "' + num + '"');
+    var productPrice = conv.contexts.get('productprice-context').parameters['selectedProductPrice'];
+    var productName = conv.contexts.get('productname-context').parameters['selectedProductName'];
+    var loanRequest = {
+        "consumer_consent_resource_identification": "CC0001",
+        "principal_amount": {
+            "currency": "GBP",
+            "Amount": productPrice
+        },
+        "purpose": {
+            "description": productName
+        },
+        "up_front_payment": {
+            "amount": num,
+            "currency": "GBP"
         }
+    }
+    var uri = PAYLATER_BASE_URL + '/' + CONSUMER_ID + '/loan/offer'
+    return req.post({
+        uri: uri,
+        body: loanRequest
+    }).then(respLoanOffer => {
+        console.log('Response from "' + uri + '": ' + JSON.stringify(respLoanOffer));
+        var offerText = 'Based on an initial payment of ' + num + ', here\'s a suggested loan offer:\n'
+        var interestRate = respLoanOffer.loan_offers[0].interest_rate[0].rate + '%'
+        var validUntil = respLoanOffer.loan_offers[0].validity_date.date_time.to_date_time
+        var totalLoanCost = respLoanOffer.loan_offers[0].total_loan_cost.amount
+        var loanDetails = 'Interest rate: ' + interestRate + ' \nValid until:  ' + validUntil + '  \nTotal loan cost:  ' + totalLoanCost
+        var response = offerText + loanDetails
+        conv.ask(loanDetails)
 
-        var recommendedProducts = [];
+        var tranchesInList = []
+        var tranchesList = respLoanOffer.loan_offers[0].tranche
+        for(let i = 0; i < tranchesList.length; i++){
+            tranchesInList[i] = [tranchesList[i].principal_amount.amount, tranchesList[i].interest_amount.amount, tranchesList[i].due_date]
+         }
 
-        return Promise.all(ps)
-            .then((results) => {
-                console.log(results); // Result of all resolve as an array
-                respProducts = results;
-                // do stuff, but note that only product IDs have been returned, so another API call loop required to get photos etc.
-                var itemsCompose = {};
-                var noOfProducts = respProducts.length;
-                console.log(noOfProducts);
-                for (var j = 0; j < noOfProducts; j++) {
-                    try {
-                        var selection_key = respProducts[j].id;
-                        console.log(selection_key);
-                        recommendedProducts.push(respProducts[j].name);
-                        var fullImgUrl = 'http://35.239.88.203/' + respProducts[j].picture;
-                        console.log(fullImgUrl);
-                        itemsCompose[selection_key] = {
-                            synonyms: [], title: respProducts[j].name,
-                            description: respProducts[j].description,
-                            image: new Image({ url: fullImgUrl, alt: respProducts[j].name })
-                        };
-                        console.log(JSON.stringify(itemsCompose));
-                    } catch (error) {
-                        console.log('Error when creating carousel list"): ' + error);
-                    }
-                }
-                conv.ask(new Carousel({
-                    items: itemsCompose
-                }));
-                console.log('conv object: ' + JSON.stringify(conv));
-                conv.user.storage.recommendedProducts = recommendedProducts;
-                console.log('verify that the storage is populated: ' + JSON.stringify(conv.user.storage));
-                conv.ask(RESP_TO_RECOMMENDATIONS_2);
-                conv.ask(new Suggestions([SUGGESTION_YES, SUGGESTION_NO]));
-                return;
-            }).catch(err => console.log(err));
+        conv.ask(new Table({
+            title: 'Instalments',
+            dividers: true,
+            columns: ['Amount', 'Interest', 'Due'],
+            rows: tranchesInList,
+          }));
+        conv.ask('Do you accept this loan offer?')
+        conv.ask(new Suggestions([SUGGESTION_YES, SUGGESTION_NO]));
     }).catch(error => {
-        console.log('Error ("' + PATH_RECOMMENDATIONS + '"): ' + error);
+        console.log('Error ("' + uri + '"): ' + error);
         conv.ask(RESP_ERROR);
         return;
     });
 });
 
 
-app.intent(INTENT_INTEREST_IN_RECOMMENDATION_NO, (conv) => {
-    conv.ask('Alright');
-    conv.ask(new Suggestions([
-        SUGGESTION_CLOSE_CONV]));
-});
-
-app.intent(INTENT_INTEREST_IN_RECOMMENDATION_YES, (conv) => {
-    conv.ask('Great, and which one?');
-    console.log('verify that the product list can be retrieved from storage (conv.user object): ' + JSON.stringify(conv.user));
-    var recommendedProducts = conv.user.storage.recommendedProducts;
-    //recommendedProducts = JSON.parse(recommendedProducts);
-    console.log('recommendedProducts: ' + recommendedProducts);
-    var arrayLength = recommendedProducts.length;
-    console.log('arrayLength: ' + arrayLength);
-    //var suggestions = [];
-    for (var i = 0; i < arrayLength; i++) {
-        conv.add(new Suggestions(recommendedProducts[i]));
-    }
+app.intent(INTENT_LOAN_ACCEPTED, (conv) => {
+    console.log('Starting intent "' + INTENT_LOAN_ACCEPTED + '" ...');
+    var productName = conv.contexts.get('productname-context').parameters['selectedProductName'];
+    conv.ask('Ok, that\'s it! The ' + productName + ' is now yours, the merchant receives the funds, and we got you covered!' )
+    conv.close(RESP_TO_END_CONVERSATION);
 });
 
 
-app.intent(INTENT_ADD_TO_CART_FROM_RECOMMENDATIONS, (conv, params) => {
-    console.log(' ===== now adding to cart ======');
-    console.log(' ===== conv: ' + JSON.stringify(conv));
-    console.log(' ===== params: ' + JSON.stringify(params));
-    console.log(' ===== options: ' + JSON.stringify(options));
-    conv.ask('Alright, product has been added to your cart.');
-    conv.ask(new Suggestions([
-        SUGGESTION_RECOMMENDATIONS,
-         SUGGESTION_CLOSE_CONV]));
+app.intent(INTENT_LOAN_DENIED, (conv) => {
+    console.log('Starting intent "' + INTENT_LOAN_DENIED + '" ...');
+    conv.ask('Fair enough! Now you know how Pay Later works, be sure to watch out for it when shopping next time.' )
+    conv.close(RESP_TO_END_CONVERSATION);
 });
 
 
@@ -395,14 +359,14 @@ app.intent(INTENT_END_CONVERSATION, (conv) => {
 });
 
 
-app.intent(INTENT_WHAT_CAN_YOU_DO, (conv) => {
-    conv.ask('Have a look at the suggestions from your smartphone. You can ask me for suggested products, for example.');
-    conv.ask(new Suggestions([
-        SUGGESTION_RECOMMENDATIONS,
-        SUGGESTION_ALLPRODUCTS,
-        SUGGESTION_CHANGECURRENCY,
-        SUGGESTION_CLOSE_CONV]));
-});
+// app.intent(INTENT_WHAT_CAN_YOU_DO, (conv) => {
+//     conv.ask('Have a look at the suggestions from your smartphone. You can walkthrough our new Pay Later feature, for example.');
+//     conv.ask(new Suggestions([
+//         SUGGESTION_RECOMMENDATIONS,
+//         SUGGESTION_ALLPRODUCTS,
+//         SUGGESTION_CHANGECURRENCY,
+//         SUGGESTION_CLOSE_CONV]));
+// });
 
 // firebase deploy --only functions
 exports.paylaterFulfillment = functions.region('europe-west1').https.onRequest(app);
