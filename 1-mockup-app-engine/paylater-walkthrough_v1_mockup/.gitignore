@@ -103,9 +103,3 @@ typings/
 .DS_Store
 
 
-# Custom
-# =======
-
-config-custom/
-.test-commands
-
